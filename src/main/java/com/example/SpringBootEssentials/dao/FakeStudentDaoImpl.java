@@ -1,9 +1,11 @@
 package com.example.SpringBootEssentials.dao;
 
 import com.example.SpringBootEssentials.model.Student;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
+@Repository("fakeDao")
 public class FakeStudentDaoImpl implements StudentDao {
 
     private final Map<UUID, Student> database;
