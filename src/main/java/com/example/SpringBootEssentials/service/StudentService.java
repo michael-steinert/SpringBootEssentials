@@ -4,12 +4,14 @@ import com.example.SpringBootEssentials.dao.StudentDao;
 import com.example.SpringBootEssentials.model.Student;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
+@Service
 public class StudentService {
 
     private final StudentDao studentDao;
@@ -19,18 +21,23 @@ public class StudentService {
         this.studentDao = studentDao;
     }
 
-    public int persistNewStudent(UUID studentId, Student student){
+    public int persistNewStudent(UUID studentId, Student newStudent){
         Optional<UUID> studentUuid = Optional.of(studentId);
         UUID studentid = (studentUuid.isEmpty() ? UUID.randomUUID() : studentUuid.get());
-        return studentDao.insertNewStudent(studentid, student);
+        Optional<Student> student = Optional.ofNullable(newStudent);
+        if(student.isEmpty()) {
+            throw new IllegalStateException("Student ist falsch");
+        }
+        student.get().setId(studentid);
+        return studentDao.insertNewStudent(studentid, student.get());
     }
 
     public Student getStudentById(UUID studentId) {
-        Optional<Student> student = Optional.ofNullable(getStudentById(studentId));
+       Optional<Student> student = Optional.ofNullable(studentDao.selectStudentById(studentId));
         if(student.isEmpty()) {
             throw new IllegalStateException("StudentID ist falsch");
         }
-        return studentDao.selectStudentById(studentId);
+        return student.get();
     }
 
     public List<Student> getAllStudents() {
@@ -41,12 +48,13 @@ public class StudentService {
         return studentList.get();
     }
 
-    public int updateStudentById(UUID studentId, Student studentUpdate) {
-        Optional<Student> student = Optional.ofNullable(getStudentById(studentId));
-        if(student.isEmpty()) {
-            throw new IllegalStateException("StudentID ist falsch");
+    public int updateStudentById(UUID studentId, Student updateStudent) {
+        Optional<UUID> studentid = Optional.ofNullable(studentId);
+        Optional<Student> student = Optional.ofNullable(updateStudent);
+        if(studentid.isEmpty() || student.isEmpty()) {
+            throw new IllegalStateException("StudentID oder Student ist falsch");
         }
-        return studentDao.updateStudentById(studentId, studentUpdate);
+        return studentDao.updateStudentById(studentid.get(), student.get());
     }
 
     public int deleteStudentById(UUID studentId) {
@@ -54,6 +62,6 @@ public class StudentService {
         if(student.isEmpty()) {
             throw new IllegalStateException("StudentID ist falsch");
         }
-        return studentDao.deleteStudentById(studentId);
+        return studentDao.deleteStudentById(student.get().getId());
     }
 }
