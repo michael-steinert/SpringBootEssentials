@@ -34,4 +34,14 @@ public class StudentController {
     public Student getStudentById(@PathVariable("studentId") UUID studentId) {
         return studentService.getStudentById(studentId);
     }
+
+    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, path ="{studentId}")
+    public void updateStudent(@PathVariable("studentId") UUID studentId, @RequestBody Student student) {
+        studentService.updateStudentById(studentId, student);
+    }
+
+    @DeleteMapping(path = "{studentId}")
+    public void deleteStudent(@PathVariable("studentId") UUID studentId) {
+        studentService.deleteStudentById(studentId);
+    }
 }
